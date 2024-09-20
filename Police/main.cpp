@@ -98,9 +98,13 @@ public:
 		this->time.tm_mon = time_elements[3];
 		this->time.tm_year = time_elements[4]-1900;
 
-		//this->time = 
-	//Constructors:time;
+		//this->time = time
 	}
+	void set_timestamp(time_t timestamp)
+	{
+		time = *localtime(&timestamp);
+	}
+	//Constructors:
 	Crime(int violation_id, const std::string& place, const std::string& time)
 	{
 		//set_license_plate(license_plate);
@@ -129,9 +133,23 @@ std::ofstream& operator<<(std::ofstream& os, const Crime& obj)
 	 os << obj.get_violation_id() << " " << obj.get_timestamp() << " " << obj.get_place();
 	 return os;
 }
-	
+std::istream& operator>>(std::istream& is, Crime& obj)
+{
+	int id;
+	time_t timestamp;
+	std::string place;
+	is >> id >> timestamp;
+	std::getline(is, place,',');
+	is.ignore();
+	obj.set_violation_id(id);
+	obj.set_timestamp(timestamp);
+	obj.set_place(place);
+	return is;
+}
+
 void print(const std::map<std::string, std::list<Crime>>& base);
 void save(const std::map<std::string, std::list<Crime>>& base, const std::string& filename);
+std::map<std::string, std::list<Crime>>load(const std::string& filename);
 
 void main()
 {
@@ -179,11 +197,31 @@ void save(const std::map<std::string, std::list<Crime>>& base, const std:: strin
 			
 			fout << *it << ",";
 		}
-		fout.seekp(-1, std::ios::cur);
-		fout <<";\n";
-		
+		//fout.seekp(-1, std::ios::cur);
+		//fout <<";\n";
+		fout << endl;
 	}
 	fout.close();
 	std::string command =  filename;
 	system(command.c_str());
+}
+std::map<std::string, std::list<Crime>>load(const std::string& filename)
+{
+	std::map<std::string, std::list<Crime>>base;
+	std::ifstream fin(filename);
+	if (fin.is_open())
+	{
+		while (!fin.eof())
+		{
+			std::string buffer;
+			std::getline(fin,buffer);
+			char delimiters[] = ",:";
+		}
+		fin.close();
+	}
+	else
+	{
+		std::cerr << "Error: file not found" << endl;
+	}
+	return base;
 }
